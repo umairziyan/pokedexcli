@@ -64,3 +64,44 @@ func (c *Client) GetLocations(pageURL *string) (Locations, error) {
 	c.cache.Add(URL, dat)
 	return locations, nil
 }
+
+func (c *Client) GetPokemon(location string) (LocationDetails, error) {
+	URL := baseURL + "/location-area/" + location
+
+	if val, ok := c.cache.Get(URL); ok {
+		locationsResp := LocationDetails{}
+		err := json.Unmarshal(val, &locationsResp)
+		if err != nil {
+			return LocationDetails{}, err
+		}
+
+		return locationsResp, nil
+	}
+
+	req, err := http.NewRequest("GET", URL, nil)
+	if err != nil {
+		log.Fatalf("error request function: %v", err)
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		log.Fatalf("error response function: %v", err)
+		return LocationDetails{}, err
+	}
+	defer resp.Body.Close()
+
+	dat, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return LocationDetails{}, err
+	}
+
+	var locationDetails LocationDetails
+	err = json.Unmarshal(dat, &locationDetails)
+	if err != nil {
+		log.Fatal(err)
+		return LocationDetails{}, err
+	}
+
+	c.cache.Add(URL, dat)
+	return locationDetails, nil
+}

@@ -54,3 +54,18 @@ func commandMapb(cfg *config, args []string) error {
 	}
 	return nil
 }
+
+func commandExplore(cfg *config, args []string) error {
+	fmt.Printf("Exploring %v...\n", args[0])
+	fmt.Print("Found Pokemon:\n")
+
+	alldetails, err := cfg.client.GetPokemon(args[0])
+	if err != nil {
+		return err
+	}
+
+	for _, pokemon := range alldetails.PokemonEncounters {
+		fmt.Printf(" - %v\n", pokemon.Pokemon.Name)
+	}
+	return nil
+}

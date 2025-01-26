@@ -3,7 +3,9 @@ package main
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"os"
+	"time"
 )
 
 func commandExit(cfg *config, args []string) error {
@@ -56,10 +58,14 @@ func commandMapb(cfg *config, args []string) error {
 }
 
 func commandExplore(cfg *config, args []string) error {
+	if len(args) != 1 {
+		return errors.New("you must provide a location name")
+	}
+
 	fmt.Printf("Exploring %v...\n", args[0])
 	fmt.Print("Found Pokemon:\n")
 
-	alldetails, err := cfg.client.GetPokemon(args[0])
+	alldetails, err := cfg.client.GetPokemonList(args[0])
 	if err != nil {
 		return err
 	}
@@ -67,5 +73,36 @@ func commandExplore(cfg *config, args []string) error {
 	for _, pokemon := range alldetails.PokemonEncounters {
 		fmt.Printf(" - %v\n", pokemon.Pokemon.Name)
 	}
+	return nil
+}
+
+func commandCatch(cfg *config, args []string) error {
+	if len(args) != 1 {
+		return errors.New("you must provide only one pokemon")
+	}
+
+	pokemonDetails, err := cfg.client.GetPokemonDetails(args[0])
+	if err != nil {
+		return err
+	}
+
+	pokemonName := args[0]
+
+	// Determine a catch probablility
+	baseExperience := pokemonDetails.BaseExperience
+	maxBaseExperience := 255
+	minCatchChance := 0.1
+	maxCatchChance := 0.9
+	catchProbability := maxCatchChance - ((float64(baseExperience) / float64(maxBaseExperience)) * (maxCatchChance - minCatchChance))
+
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	randomValue := r.Float64()
+
+	if randomValue <= catchProbability {
+		fmt.Printf("%v was caught!", pokemonName)
+		return nil
+	}
+	fmt.Printf("%v was not caught!", pokemonName)
+
 	return nil
 }

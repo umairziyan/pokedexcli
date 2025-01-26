@@ -99,10 +99,10 @@ func commandCatch(cfg *config, args []string) error {
 	randomValue := r.Float64()
 
 	if randomValue <= catchProbability {
-		fmt.Printf("%v was caught!", pokemonName)
+		fmt.Printf("%v was caught!\n", pokemonName)
 		return nil
 	}
-	fmt.Printf("%v was not caught!", pokemonName)
+	fmt.Printf("%v was not caught!\n", pokemonName)
 
 	return nil
 }

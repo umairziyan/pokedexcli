@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/umairziyan/pokedexcli/internal/pokeapi"
 )
 
 func replStart(cfg *config) {
@@ -35,6 +37,7 @@ func replStart(cfg *config) {
 }
 
 type config struct {
+	client           pokeapi.Client
 	NextLocationsURL *string
 	prevLocationsURL *string
 }

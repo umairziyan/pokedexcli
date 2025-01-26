@@ -17,28 +17,31 @@ type Locations struct {
 	} `json:"results"`
 }
 
-func GetLocations(pageUrl *string) (Locations, error) {
+func (c *Client) GetLocations(pageUrl *string) (Locations, error) {
 	url := "https://pokeapi.co/api/v2/location-area/"
 	if pageUrl != nil {
 		url = *pageUrl
 	}
-	client := &http.Client{
-		Timeout: time.Second * 10,
 	}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("error request function: %v", err)
 	}
 
-	resp, err := client.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("error response function: %v", err)
+		return Locations{}, err
+	}
+	defer resp.Body.Close()
+
+	dat, err := io.ReadAll(resp.Body)
+	if err != nil {
 		return Locations{}, err
 	}
 
 	var locations Locations
-	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&locations)
+	err = json.Unmarshal(dat, &locations)
 	if err != nil {
 		log.Fatal(err)
 		return Locations{}, err

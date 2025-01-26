@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-
-	"github.com/umairziyan/pokedexcli/internal/pokeapi"
 )
 
 func commandExit(cfg *config) error {
@@ -25,9 +23,11 @@ func commandHelp(cfg *config) error {
 }
 
 func commandMap(cfg *config) error {
-	locations, err := pokeapi.GetLocations(cfg.NextLocationsURL)
+	locations, err := cfg.client.GetLocations(cfg.NextLocationsURL)
 	if err != nil {
+		fmt.Print("error here")
 		return err
+
 	}
 
 	cfg.prevLocationsURL = locations.Previous
@@ -43,7 +43,7 @@ func commandMapb(cfg *config) error {
 	if cfg.prevLocationsURL == nil {
 		return errors.New("you're on the first page")
 	}
-	locations, err := pokeapi.GetLocations(cfg.prevLocationsURL)
+	locations, err := cfg.client.GetLocations(cfg.NextLocationsURL)
 	if err != nil {
 		return err
 	}

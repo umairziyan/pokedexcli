@@ -2,9 +2,9 @@ package pokeapi
 
 import (
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
-	"time"
 )
 
 type Locations struct {
@@ -22,7 +22,17 @@ func (c *Client) GetLocations(pageUrl *string) (Locations, error) {
 	if pageUrl != nil {
 		url = *pageUrl
 	}
+
+	if val, ok := c.cache.Get(url); ok {
+		locationsResp := Locations{}
+		err := json.Unmarshal(val, &locationsResp)
+		if err != nil {
+			return Locations{}, err
+		}
+
+		return locationsResp, nil
 	}
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatalf("error request function: %v", err)
@@ -47,5 +57,6 @@ func (c *Client) GetLocations(pageUrl *string) (Locations, error) {
 		return Locations{}, err
 	}
 
+	c.cache.Add(url, dat)
 	return locations, nil
 }

@@ -7,6 +7,10 @@ import (
 	"net/http"
 )
 
+const (
+	baseURL = "https://pokeapi.co/api/v2"
+)
+
 type Locations struct {
 	Count    int     `json:"count"`
 	Next     *string `json:"next"`
@@ -17,13 +21,13 @@ type Locations struct {
 	} `json:"results"`
 }
 
-func (c *Client) GetLocations(pageUrl *string) (Locations, error) {
-	url := "https://pokeapi.co/api/v2/location-area/"
-	if pageUrl != nil {
-		url = *pageUrl
+func (c *Client) GetLocations(pageURL *string) (Locations, error) {
+	URL := baseURL + "/location-area"
+	if pageURL != nil {
+		URL = *pageURL
 	}
 
-	if val, ok := c.cache.Get(url); ok {
+	if val, ok := c.cache.Get(URL); ok {
 		locationsResp := Locations{}
 		err := json.Unmarshal(val, &locationsResp)
 		if err != nil {
@@ -33,7 +37,7 @@ func (c *Client) GetLocations(pageUrl *string) (Locations, error) {
 		return locationsResp, nil
 	}
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", URL, nil)
 	if err != nil {
 		log.Fatalf("error request function: %v", err)
 	}
@@ -57,6 +61,6 @@ func (c *Client) GetLocations(pageUrl *string) (Locations, error) {
 		return Locations{}, err
 	}
 
-	c.cache.Add(url, dat)
+	c.cache.Add(URL, dat)
 	return locations, nil
 }

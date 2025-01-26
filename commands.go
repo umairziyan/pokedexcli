@@ -87,6 +87,7 @@ func commandCatch(cfg *config, args []string) error {
 	}
 
 	pokemonName := args[0]
+	fmt.Printf("Throwing a Pokeball at %v...\n", pokemonName)
 
 	// Determine a catch probablility
 	baseExperience := pokemonDetails.BaseExperience
@@ -102,7 +103,7 @@ func commandCatch(cfg *config, args []string) error {
 		fmt.Printf("%v was caught!\n", pokemonName)
 		return nil
 	}
-	fmt.Printf("%v was not caught!\n", pokemonName)
+	fmt.Printf("%v escaped!\n", pokemonName)
 
 	return nil
 }
